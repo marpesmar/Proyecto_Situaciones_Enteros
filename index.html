@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Actividad interactiva de Matemáticas de 1.º de ESO para practicar los números enteros.">
+  <title>¿Qué número entero representa esta situación? · 1.º ESO</title>
+  <style>
+    :root {
+      --navy: #12345b;
+      --blue: #2468a8;
+      --sky: #e9f5ff;
+      --green: #176b43;
+      --red: #b83242;
+      --ink: #172b43;
+      --muted: #60748b;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      padding: 20px 12px;
+      background: #d9edff;
+      color: var(--ink);
+      font-family: "Trebuchet MS", Arial, sans-serif;
+    }
+
+    button { font: inherit; cursor: pointer; }
+    button:focus-visible { outline: 3px solid #f2b93b; outline-offset: 3px; }
+
+    .app {
+      width: 100%;
+      max-width: 1040px;
+      margin: 0 auto;
+    }
+
+    .shell {
+      padding: clamp(14px, 3vw, 30px);
+      border: 1px solid #c4def3;
+      border-radius: 24px;
+      background: linear-gradient(145deg, #dff1ff, #f1f8ff 55%, #e1f2ff);
+      box-shadow: 0 12px 32px #18436b20;
+    }
+
+    .header { text-align: center; margin-bottom: 22px; }
+    .kicker {
+      color: #27669b;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 2px;
+    }
+    h1 {
+      margin: 9px 0 7px;
+      color: #12345b;
+      font-size: clamp(23px, 4vw, 35px);
+      line-height: 1.13;
+    }
+    .subtitle { margin: 0; color: #506b85; font-size: 14px; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 13px;
+      padding: 7px 13px;
+      border: 1px solid #c9e1f5;
+      border-radius: 30px;
+      background: #fff;
+      color: #234d76;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 9px;
+    }
+    .stat { color: #244d74; font-size: 13px; font-weight: 900; }
+    .track {
+      height: 10px;
+      margin-bottom: 22px;
+      overflow: hidden;
+      border-radius: 20px;
+      background: #cbdff0;
+    }
+    .progress {
+      height: 100%;
+      border-radius: 20px;
+      background: linear-gradient(90deg, #2683c5, #35b5d1);
+      transition: width .3s;
+    }
+
+    .question-card {
+      display: flex;
+      align-items: center;
+      gap: 17px;
+      min-height: 120px;
+      margin-bottom: 20px;
+      padding: 20px 22px;
+      border: 2px solid #d8e7f3;
+      border-radius: 17px;
+      background: #fff;
+      box-shadow: 0 5px 14px #214d7020;
+    }
+    .question-icon {
+      display: grid;
+      flex: 0 0 66px;
+      height: 66px;
+      place-items: center;
+      border-radius: 17px;
+      background: #e8f4ff;
+      font-size: 35px;
+    }
+    .question-label {
+      margin-bottom: 7px;
+      color: #63809a;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1.3px;
+    }
+    .question-text {
+      color: #172b43;
+      font-size: clamp(17px, 2.5vw, 22px);
+      font-weight: 800;
+      line-height: 1.35;
+    }
+    .instruction {
+      margin: 4px 0 12px;
+      color: #45627e;
+      font-size: 14px;
+      text-align: center;
+    }
+    .answer-display {
+      display: flex;
+      min-height: 65px;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 15px;
+      padding: 12px;
+      border: 2px solid #b9d2e8;
+      border-radius: 13px;
+      background: #fff;
+      color: #183c63;
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-align: center;
+    }
+    .placeholder {
+      color: #91a5b8;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0;
+    }
+
+    .keypad {
+      display: grid;
+      width: 100%;
+      max-width: 570px;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 9px;
+      margin: 0 auto;
+    }
+    .key {
+      min-height: 52px;
+      border: 0;
+      border-radius: 11px;
+      background: #123d6a;
+      color: #fff;
+      box-shadow: 0 4px 0 #092949;
+      font-size: 22px;
+      font-weight: 900;
+      transition: transform .12s, filter .12s, box-shadow .12s;
+    }
+    .key:hover:not(:disabled) { filter: brightness(1.17); transform: translateY(-2px); }
+    .key:active:not(:disabled) { transform: translateY(2px); box-shadow: 0 1px 0 #092949; }
+    .key:disabled { cursor: not-allowed; opacity: .5; }
+    .key.sign { font-size: 27px; }
+    .key.selected {
+      background: #287eb9;
+      box-shadow: 0 0 0 3px #8dc9f2 inset, 0 4px 0 #164d77;
+    }
+    .key.clear {
+      grid-column: span 2;
+      background: #315678;
+      font-size: 15px;
+    }
+    .key.confirm {
+      grid-column: span 3;
+      background: #176b43;
+      box-shadow: 0 4px 0 #0c4a2d;
+      font-size: 16px;
+    }
+    .hint {
+      max-width: 570px;
+      margin: 13px auto 0;
+      color: #58738d;
+      font-size: 12px;
+      line-height: 1.5;
+      text-align: center;
+    }
+    .feedback {
+      max-width: 570px;
+      margin: 17px auto 0;
+      padding: 13px 15px;
+      border-radius: 13px;
+      font-size: 16px;
+      font-weight: 900;
+      text-align: center;
+      animation: pop .25s ease-out;
+    }
+    .feedback.good { border: 1px solid #86d5a5; background: #dff7e9; color: #14643c; }
+    .feedback.bad { border: 1px solid #efa6ae; background: #ffe8ea; color: #a52839; }
+    .feedback.info { border: 1px solid #b8d4f5; background: #e2efff; color: #123f70; }
+    .feedback small { display: block; margin-top: 5px; font-size: 12px; font-weight: 700; }
+    .success-icon { display: inline-block; font-size: 24px; animation: bounce .55s ease-in-out; }
+    .footnote { margin-top: 16px; color: #668098; font-size: 11px; text-align: center; }
+
+    .summary { text-align: center; }
+    .complete { color: #27669b; font-size: 12px; font-weight: 900; letter-spacing: 2px; }
+    .score {
+      display: flex;
+      width: 126px;
+      height: 126px;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin: 18px auto 10px;
+      border: 8px solid #80c5ed;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 5px 15px #1c4e7620;
+    }
+    .score strong { color: #12345b; font-size: 35px; line-height: 1; }
+    .score span { margin-top: 5px; color: #637f99; font-size: 11px; font-weight: 800; }
+    .final-msg {
+      max-width: 690px;
+      margin: 15px auto 23px;
+      color: #173f65;
+      font-size: clamp(16px, 2.5vw, 20px);
+      font-weight: 900;
+      line-height: 1.4;
+    }
+    .table-wrap { overflow-x: auto; border: 1px solid #d1dfeb; border-radius: 13px; background: #fff; text-align: left; }
+    table { width: 100%; min-width: 540px; border-collapse: collapse; font-size: 13px; }
+    th { padding: 12px 10px; background: #edf4fb; color: #173957; font-size: 12px; text-align: left; }
+    td { padding: 11px 10px; border-top: 1px solid #e5edf4; color: #172b43; vertical-align: middle; }
+    .row-situation { display: flex; align-items: center; gap: 10px; line-height: 1.35; }
+    .row-emoji { flex: 0 0 30px; font-size: 23px; }
+    .answer-ok { color: #147343; font-weight: 900; }
+    .answer-no { color: #b32638; font-weight: 900; }
+    .correct-answer { color: #173957; font-weight: 900; }
+    .result-label { display: block; margin-top: 3px; color: #b32638; font-size: 10px; font-weight: 900; }
+    .result-label.ok { color: #147343; }
+    .play-again {
+      display: inline-block;
+      margin-top: 22px;
+      padding: 15px 28px;
+      border: 0;
+      border-radius: 12px;
+      background: #176b43;
+      color: #fff;
+      box-shadow: 0 5px 0 #0c4a2d;
+      font-size: 17px;
+      font-weight: 900;
+    }
+    .play-again:hover { filter: brightness(1.1); transform: translateY(-2px); }
+
+    @keyframes pop { from { opacity: .4; transform: scale(.95); } to { opacity: 1; transform: scale(1); } }
+    @keyframes bounce { 0%, 100% { transform: scale(1); } 45% { transform: scale(1.35) rotate(-8deg); } }
+
+    @media (max-width: 560px) {
+      body { padding: 10px 6px; }
+      .shell { padding: 13px; border-radius: 17px; }
+      .question-card { min-height: 105px; gap: 11px; padding: 14px; }
+      .question-icon { flex-basis: 51px; height: 51px; font-size: 28px; }
+      .keypad { gap: 7px; }
+      .key { min-height: 48px; font-size: 20px; }
+      .key.clear { font-size: 13px; }
+      .key.confirm { font-size: 14px; }
+    }
+  
+
+    /* AJUSTE PARA INSERTAR EN UNA DIAPOSITIVA DE GENIALLY (16:9) */
+    @media (max-height: 750px) {
+      body {
+        min-height: 100vh;
+        padding: 0;
+      }
+      .app {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+      }
+      .shell {
+        min-height: 100vh;
+        padding: 9px 14px 12px;
+        border-radius: 12px;
+      }
+      .header { margin-bottom: 8px; }
+      .kicker { font-size: 9px; letter-spacing: 1.4px; }
+      h1 {
+        margin: 3px 0 2px;
+        font-size: clamp(18px, 2.5vw, 23px);
+        line-height: 1.1;
+      }
+      .subtitle, .tag, .hint, .footnote { display: none; }
+      .stats { gap: 6px; margin-bottom: 5px; }
+      .stat { font-size: 11px; }
+      .track { height: 6px; margin-bottom: 9px; }
+      .question-card {
+        min-height: 74px;
+        gap: 10px;
+        margin-bottom: 8px;
+        padding: 9px 12px;
+        border-radius: 12px;
+      }
+      .question-icon {
+        flex-basis: 46px;
+        height: 46px;
+        border-radius: 11px;
+        font-size: 25px;
+      }
+      .question-label { margin-bottom: 3px; font-size: 9px; }
+      .question-text {
+        font-size: clamp(14px, 1.8vw, 17px);
+        line-height: 1.2;
+      }
+      .instruction { margin: 2px 0 7px; font-size: 12px; }
+      .answer-display {
+        min-height: 42px;
+        margin-bottom: 7px;
+        padding: 5px;
+        border-radius: 9px;
+        font-size: 23px;
+      }
+      .placeholder { font-size: 12px; }
+      .keypad { max-width: 570px; gap: 5px; }
+      .key {
+        min-height: 37px;
+        border-radius: 8px;
+        font-size: 18px;
+        box-shadow: 0 3px 0 #092949;
+      }
+      .key.sign { font-size: 22px; }
+      .key.clear { font-size: 12px; }
+      .key.confirm { font-size: 13px; }
+      .feedback {
+        margin-top: 7px;
+        padding: 8px 10px;
+        font-size: 14px;
+      }
+      .feedback small { font-size: 11px; }
+      .table-wrap {
+        max-height: 175px;
+        overflow: auto;
+      }
+      table { min-width: 500px; font-size: 11px; }
+      th { padding: 8px 7px; font-size: 10px; }
+      td { padding: 7px; }
+      .row-emoji { font-size: 19px; }
+      .score { width: 92px; height: 92px; border-width: 6px; margin: 9px auto 6px; }
+      .score strong { font-size: 27px; }
+      .final-msg { margin: 8px auto 12px; font-size: 15px; }
+      .play-again { margin-top: 12px; padding: 11px 22px; font-size: 15px; }
+    }
+
+    /* En pantallas muy bajas, compacta un poco más el teclado. */
+    @media (max-height: 540px) {
+      .shell { padding-top: 6px; padding-bottom: 7px; }
+      .header { margin-bottom: 5px; }
+      .question-card { min-height: 62px; padding: 6px 10px; }
+      .question-icon { flex-basis: 40px; height: 40px; font-size: 22px; }
+      .key { min-height: 32px; }
+      .table-wrap { max-height: 125px; }
+    }
+
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="shell" aria-label="Actividad de números enteros">
+      <header class="header">
+        <div class="kicker">🎮 MISIÓN MATEMÁTICA · 1.º ESO</div>
+        <h1>¿Qué número entero representa esta situación?</h1>
+        <p class="subtitle">Interpreta cada situación y demuestra que dominas los números enteros.</p>
+        <div class="tag">⭐ 10 situaciones por partida · 🏆 ¡A por todas!</div>
+      </header>
+      <div id="game-content" aria-live="polite"></div>
+    </section>
+  </main>
+
+  <script>
+    "use strict";
+
+    // BANCO DE 100 SITUACIONES. Cada situación tiene un identificador único y su solución.
+    const bank = [
+      {id:1,icon:"🏢",text:"He subido a la tercera planta de un edificio, tomando la planta baja como referencia.",answer:3},
+      {id:2,icon:"🤿",text:"Un submarinista se encuentra a 15 metros bajo el nivel del mar.",answer:-15},
+      {id:3,icon:"💰",text:"Mi saldo bancario ha aumentado 12 euros.",answer:12},
+      {id:4,icon:"💳",text:"Tengo una deuda de 7 euros.",answer:-7},
+      {id:5,icon:"🎯",text:"En una partida no he ganado ni perdido ningún punto.",answer:0},
+      {id:6,icon:"🌡️",text:"El termómetro marca 6 grados por encima de cero.",answer:6},
+      {id:7,icon:"❄️",text:"La temperatura exterior es de 4 grados bajo cero.",answer:-4},
+      {id:8,icon:"🚗",text:"He aparcado el coche en la segunda planta subterránea.",answer:-2},
+      {id:9,icon:"🛗",text:"El ascensor ha subido 8 plantas desde la planta baja.",answer:8},
+      {id:10,icon:"🛗",text:"Desde la planta baja, el ascensor ha bajado 5 plantas.",answer:-5},
+      {id:11,icon:"⛰️",text:"La cima de una montaña está a 1250 metros sobre el nivel del mar.",answer:1250},
+      {id:12,icon:"🏞️",text:"Un punto del fondo de un valle está a 30 metros bajo el nivel del mar.",answer:-30},
+      {id:13,icon:"🐠",text:"Un buceador alcanza una profundidad de 8 metros bajo el nivel del mar.",answer:-8},
+      {id:14,icon:"🌊",text:"Un submarinista llega hasta la superficie del mar.",answer:0},
+      {id:15,icon:"⚽",text:"Mi equipo ha conseguido 3 puntos en el campeonato.",answer:3},
+      {id:16,icon:"🎮",text:"En un videojuego he perdido 2 puntos.",answer:-2},
+      {id:17,icon:"🏅",text:"Al terminar la ronda tengo exactamente los mismos puntos que al empezar.",answer:0},
+      {id:18,icon:"💶",text:"He ingresado 25 euros en mi hucha.",answer:25},
+      {id:19,icon:"🛍️",text:"Mi saldo ha disminuido 10 euros después de una compra.",answer:-10},
+      {id:20,icon:"🎁",text:"He recibido un premio de 15 puntos en un juego.",answer:15},
+      {id:21,icon:"🤝",text:"Le debo 4 euros a un amigo.",answer:-4},
+      {id:22,icon:"🏬",text:"El ascensor se encuentra en la primera planta del sótano.",answer:-1},
+      {id:23,icon:"🅿️",text:"Mi coche está aparcado en el tercer nivel subterráneo.",answer:-3},
+      {id:24,icon:"🏫",text:"La biblioteca está dos plantas por encima de la planta baja.",answer:2},
+      {id:25,icon:"🥾",text:"Durante una excursión he ascendido 300 metros respecto al punto de partida.",answer:300},
+      {id:26,icon:"🥾",text:"En una ruta de montaña he descendido 120 metros respecto al punto de partida.",answer:-120},
+      {id:27,icon:"🏢",text:"Un ascensor sube 4 plantas desde la planta baja.",answer:4},
+      {id:28,icon:"🏢",text:"Un ascensor baja 6 plantas desde la planta baja.",answer:-6},
+      {id:29,icon:"🧗",text:"Un escalador llega a un punto situado 45 metros por encima del inicio de la ruta.",answer:45},
+      {id:30,icon:"⛰️",text:"Un senderista llega a un lugar situado 35 metros por debajo del punto de partida.",answer:-35},
+      {id:31,icon:"☀️",text:"Por la mañana, la temperatura está 9 grados por encima de cero.",answer:9},
+      {id:32,icon:"🌨️",text:"En una localidad de montaña, el termómetro marca 3 grados bajo cero.",answer:-3},
+      {id:33,icon:"🌡️",text:"Desde primera hora, la temperatura ha subido 5 grados.",answer:5},
+      {id:34,icon:"🌡️",text:"Durante la tarde, la temperatura ha bajado 7 grados.",answer:-7},
+      {id:35,icon:"🌤️",text:"La temperatura se ha mantenido sin cambios durante la mañana.",answer:0},
+      {id:36,icon:"🛗",text:"Estoy en la sexta planta de un edificio, contando desde la planta baja.",answer:6},
+      {id:37,icon:"🚇",text:"El andén de una estación está en el cuarto nivel subterráneo.",answer:-4},
+      {id:38,icon:"🚪",text:"Me encuentro exactamente en la planta baja, que tomamos como nivel de referencia.",answer:0},
+      {id:39,icon:"🤿",text:"Un buceador está a 22 metros de profundidad bajo el nivel del mar.",answer:-22},
+      {id:40,icon:"🚢",text:"Un submarino navega a 10 metros bajo la superficie del mar.",answer:-10},
+      {id:41,icon:"🐬",text:"Un delfín está justo en la superficie del agua.",answer:0},
+      {id:42,icon:"🚁",text:"Un helicóptero vuela a 80 metros sobre el nivel del mar.",answer:80},
+      {id:43,icon:"🕳️",text:"Una cueva se encuentra a 25 metros por debajo del nivel del terreno tomado como referencia.",answer:-25},
+      {id:44,icon:"🗼",text:"Una torre alcanza los 60 metros por encima de la plaza.",answer:60},
+      {id:45,icon:"🏆",text:"En una competición he conseguido 18 puntos más.",answer:18},
+      {id:46,icon:"🎯",text:"En un juego he perdido 9 puntos.",answer:-9},
+      {id:47,icon:"🎲",text:"Mi puntuación sigue siendo la misma que al comienzo de la partida.",answer:0},
+      {id:48,icon:"🪙",text:"Un videojuego me ha regalado 50 monedas para mi marcador.",answer:50},
+      {id:49,icon:"👾",text:"He perdido 20 monedas en una aventura de videojuego.",answer:-20},
+      {id:50,icon:"💸",text:"Debo 15 euros por un préstamo que todavía no he devuelto.",answer:-15},
+      {id:51,icon:"💵",text:"He recibido 30 euros por ayudar en una tarea.",answer:30},
+      {id:52,icon:"🛒",text:"Después de pagar una compra, mi saldo ha disminuido 13 euros.",answer:-13},
+      {id:53,icon:"🏦",text:"Mi saldo bancario es exactamente de cero euros.",answer:0},
+      {id:54,icon:"🐷",text:"Mi hucha tiene ahora 100 euros más que antes.",answer:100},
+      {id:55,icon:"💳",text:"Mi cuenta bancaria ha disminuido 40 euros.",answer:-40},
+      {id:56,icon:"🥪",text:"He comprado un bocadillo y me quedan 3 euros por pagar.",answer:-3},
+      {id:57,icon:"🧾",text:"Mi deuda con una tienda ha aumentado 8 euros.",answer:-8},
+      {id:58,icon:"🏢",text:"El ascensor ha llegado a la planta número 12, por encima de la planta baja.",answer:12},
+      {id:59,icon:"🛗",text:"El ascensor baja hasta la segunda planta del sótano.",answer:-2},
+      {id:60,icon:"🚪",text:"El ascensor se detiene en la planta baja.",answer:0},
+      {id:61,icon:"🚙",text:"Un coche está en el tercer piso subterráneo del aparcamiento.",answer:-3},
+      {id:62,icon:"🅿️",text:"Un vehículo está en el nivel de entrada del aparcamiento, tomado como referencia cero.",answer:0},
+      {id:63,icon:"🏙️",text:"Una oficina se encuentra cuatro plantas por encima de la entrada del edificio.",answer:4},
+      {id:64,icon:"🚲",text:"En bicicleta llego a un punto situado 120 metros por encima del lugar de salida.",answer:120},
+      {id:65,icon:"🌲",text:"Una ruta atraviesa un lugar situado 50 metros por debajo del punto de inicio.",answer:-50},
+      {id:66,icon:"🥾",text:"Después de caminar, regreso exactamente al punto desde el que salí.",answer:0},
+      {id:67,icon:"✈️",text:"Un avión vuela a 900 metros sobre el nivel del mar.",answer:900},
+      {id:68,icon:"🐋",text:"Un vehículo submarino está a 200 metros bajo el nivel del mar.",answer:-200},
+      {id:69,icon:"🚠",text:"Una cabina de teleférico está 35 metros por encima de la estación de salida.",answer:35},
+      {id:70,icon:"🌉",text:"Un buceador se encuentra a 18 metros por debajo del nivel de un puente.",answer:-18},
+      {id:71,icon:"🏀",text:"Mi equipo consigue una canasta que suma 2 puntos.",answer:2},
+      {id:72,icon:"🎾",text:"Un jugador recibe una penalización y pierde 1 punto.",answer:-1},
+      {id:73,icon:"📝",text:"En una pregunta de un concurso no sumo ni resto puntos.",answer:0},
+      {id:74,icon:"🎲",text:"En un juego de tablero avanzo 5 casillas desde mi posición.",answer:5},
+      {id:75,icon:"♟️",text:"Una ficha retrocede 3 casillas respecto a su posición inicial.",answer:-3},
+      {id:76,icon:"🏁",text:"Una ficha termina justo en la casilla donde había comenzado.",answer:0},
+      {id:77,icon:"🏫",text:"La clase suma 10 puntos en una competición escolar.",answer:10},
+      {id:78,icon:"📉",text:"Nuestro equipo pierde 6 puntos por una penalización.",answer:-6},
+      {id:79,icon:"📊",text:"La puntuación de mi equipo no ha cambiado.",answer:0},
+      {id:80,icon:"🌡️",text:"El termómetro indica 2 grados por encima de cero.",answer:2},
+      {id:81,icon:"🥶",text:"Una mañana fría, la temperatura está 11 grados bajo cero.",answer:-11},
+      {id:82,icon:"🌞",text:"A mediodía la temperatura ha subido 4 grados respecto a primera hora.",answer:4},
+      {id:83,icon:"🧊",text:"La temperatura del congelador ha bajado 6 grados respecto a su valor anterior.",answer:-6},
+      {id:84,icon:"🌡️",text:"La temperatura no ha variado durante la última hora.",answer:0},
+      {id:85,icon:"🏖️",text:"En una ciudad costera, la temperatura está 14 grados por encima de cero.",answer:14},
+      {id:86,icon:"❄️",text:"Durante la noche, el termómetro marca 8 grados bajo cero.",answer:-8},
+      {id:87,icon:"🏬",text:"Un almacén está en la cuarta planta subterránea de un edificio.",answer:-4},
+      {id:88,icon:"📚",text:"La biblioteca del centro está en la segunda planta sobre la planta baja.",answer:2},
+      {id:89,icon:"🧰",text:"El trastero se encuentra en el quinto nivel bajo la entrada del edificio.",answer:-5},
+      {id:90,icon:"🏠",text:"Estoy en el nivel de entrada de una casa, que tomamos como referencia.",answer:0},
+      {id:91,icon:"🚁",text:"Un dron vuela 25 metros por encima del punto desde el que despegó.",answer:25},
+      {id:92,icon:"🤖",text:"Un robot recorre un túnel situado 12 metros por debajo de la calle.",answer:-12},
+      {id:93,icon:"🎈",text:"Un globo se encuentra a 7 metros por encima del lugar donde se soltó.",answer:7},
+      {id:94,icon:"🚇",text:"Un túnel pasa 3 metros por debajo del nivel del terreno de referencia.",answer:-3},
+      {id:95,icon:"🚶",text:"Desde la salida, camino 40 pasos hacia delante.",answer:40},
+      {id:96,icon:"👣",text:"Desde mi posición inicial, doy 12 pasos hacia atrás.",answer:-12},
+      {id:97,icon:"🧍",text:"Me quedo exactamente en el lugar donde estaba al comenzar.",answer:0},
+      {id:98,icon:"🧊",text:"El congelador está a 18 grados bajo cero.",answer:-18},
+      {id:99,icon:"🔭",text:"Un mirador de montaña está a 320 metros sobre el nivel del mar.",answer:320},
+      {id:100,icon:"🤖",text:"Un robot está colocado justo en el nivel de referencia de una plataforma.",answer:0}
+    ];
+
+    const content = document.getElementById("game-content");
+    let questions = [];
+    let previousRoundIds = [];
+    let currentIndex = 0;
+    let score = 0;
+    let results = [];
+    let digits = "";
+    let selectedSign = "";
+    let locked = false;
+    let feedbackTimer = null;
+
+    function shuffle(array) {
+      const copy = array.slice();
+      for (let i = copy.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [copy[i], copy[j]] = [copy[j], copy[i]];
+      }
+      return copy;
+    }
+
+    // Excluye todas las preguntas de la partida inmediatamente anterior.
+    function chooseTen() {
+      const available = bank.filter(question => !previousRoundIds.includes(question.id));
+      // Con 100 preguntas y 10 por partida siempre habrá suficientes opciones.
+      return shuffle(available.length >= 10 ? available : bank).slice(0, 10);
+    }
+
+    function formatNumber(number) {
+      if (number > 0) return "+" + number;
+      if (number < 0) return "−" + Math.abs(number);
+      return "0";
+    }
+
+    function startNewGame() {
+      if (feedbackTimer) window.clearTimeout(feedbackTimer);
+      questions = chooseTen();
+      previousRoundIds = questions.map(question => question.id);
+      currentIndex = 0;
+      score = 0;
+      results = [];
+      digits = "";
+      selectedSign = "";
+      locked = false;
+      renderQuestion();
+    }
+
+    function renderQuestion() {
+      locked = false;
+      digits = "";
+      selectedSign = "";
+      const question = questions[currentIndex];
+      const number = currentIndex + 1;
+
+      content.innerHTML = `
+        <div class="stats">
+          <span class="stat">🚀 RETO ${number} DE 10</span>
+          <span class="stat">⭐ ACIERTOS: ${score}</span>
+        </div>
+        <div class="track"><div class="progress" style="width:${number * 10}%"></div></div>
+        <div class="question-card">
+          <div class="question-icon" aria-hidden="true">${question.icon}</div>
+          <div>
+            <div class="question-label">LEE LA SITUACIÓN</div>
+            <div class="question-text">${question.text}</div>
+          </div>
+        </div>
+        <p class="instruction">¿Qué número entero representa esta situación?</p>
+        <div class="answer-display" id="answer-display"><span class="placeholder">Tu respuesta aparecerá aquí</span></div>
+        <div class="keypad" aria-label="Teclado numérico">
+          <button type="button" class="key sign" data-sign="+" aria-label="Signo más" aria-pressed="false">+</button>
+          <button type="button" class="key sign" data-sign="-" aria-label="Signo menos" aria-pressed="false">−</button>
+          <button type="button" class="key" data-digit="7">7</button>
+          <button type="button" class="key" data-digit="8">8</button>
+          <button type="button" class="key" data-digit="9">9</button>
+          <button type="button" class="key" data-digit="4">4</button>
+          <button type="button" class="key" data-digit="5">5</button>
+          <button type="button" class="key" data-digit="6">6</button>
+          <button type="button" class="key" data-digit="1">1</button>
+          <button type="button" class="key" data-digit="2">2</button>
+          <button type="button" class="key" data-digit="3">3</button>
+          <button type="button" class="key" data-digit="0">0</button>
+          <button type="button" class="key clear" id="clear-button">⌫ Borrar</button>
+          <button type="button" class="key confirm" id="confirm-button">✓ Confirmar respuesta</button>
+        </div>
+        <p class="hint">Selecciona + o − cuando sea necesario y después pulsa los números. También puedes dejar el signo sin seleccionar para introducir un número positivo. El cero no lleva signo.</p>
+        <div id="feedback-slot" aria-live="assertive"></div>
+        <div class="footnote">🔒 Las soluciones se mostrarán únicamente al terminar las 10 situaciones.</div>
+      `;
+
+      content.querySelectorAll("[data-sign]").forEach(button => {
+        button.addEventListener("click", () => {
+          if (locked) return;
+          selectedSign = selectedSign === button.dataset.sign ? "" : button.dataset.sign;
+          updateDisplay();
+          updateSelectedSign();
+        });
+      });
+
+      content.querySelectorAll("[data-digit]").forEach(button => {
+        button.addEventListener("click", () => {
+          if (locked || digits.length >= 6) return;
+          const digit = button.dataset.digit;
+          if (digits === "0") digits = digit === "0" ? "0" : digit;
+          else digits += digit;
+          updateDisplay();
+        });
+      });
+
+      document.getElementById("clear-button").addEventListener("click", () => {
+        if (locked) return;
+        digits = "";
+        selectedSign = "";
+        updateDisplay();
+        updateSelectedSign();
+        showInfo("");
+      });
+
+      document.getElementById("confirm-button").addEventListener("click", confirmAnswer);
+      updateDisplay();
+    }
+
+    function updateDisplay() {
+      const display = document.getElementById("answer-display");
+      if (!display) return;
+      if (digits === "") {
+        display.innerHTML = '<span class="placeholder">Tu respuesta aparecerá aquí</span>';
+      } else {
+        const sign = selectedSign === "+" ? "+" : selectedSign === "-" ? "−" : "";
+        display.textContent = sign + digits;
+      }
+    }
+
+    function updateSelectedSign() {
+      content.querySelectorAll("[data-sign]").forEach(button => {
+        const selected = button.dataset.sign === selectedSign;
+        button.classList.toggle("selected", selected);
+        button.setAttribute("aria-pressed", selected ? "true" : "false");
+      });
+    }
+
+    function showInfo(message) {
+      const slot = document.getElementById("feedback-slot");
+      if (!slot) return;
+      slot.innerHTML = message ? `<div class="feedback info">${message}</div>` : "";
+    }
+
+    function confirmAnswer() {
+      if (locked) return;
+      if (digits === "") {
+        showInfo("Pulsa primero uno o varios números.");
+        return;
+      }
+
+      const magnitude = Number(digits);
+      const question = questions[currentIndex];
+      const zeroWithSign = magnitude === 0 && selectedSign !== "";
+      const givenValue = selectedSign === "-" ? -magnitude : magnitude;
+      const displayedAnswer = (selectedSign === "+" ? "+" : selectedSign === "-" ? "−" : "") + digits;
+      const isCorrect = !zeroWithSign && givenValue === question.answer;
+
+      results.push({
+        icon: question.icon,
+        text: question.text,
+        given: displayedAnswer,
+        correct: formatNumber(question.answer),
+        isCorrect
+      });
+
+      locked = true;
+      content.querySelectorAll("button").forEach(button => { button.disabled = true; });
+
+      if (isCorrect) {
+        score++;
+        showFeedback(true, "¡Muy bien! Has acertado.", "");
+      } else if (zeroWithSign) {
+        showFeedback(false, "Inténtalo de nuevo.", "Recuerda: el cero es el único número que no necesita signo.");
+      } else {
+        showFeedback(false, "Inténtalo de nuevo.", "");
+      }
+
+      feedbackTimer = window.setTimeout(() => {
+        if (currentIndex < 9) {
+          currentIndex++;
+          renderQuestion();
+        } else {
+          renderSummary();
+        }
+      }, 2000);
+    }
+
+    function showFeedback(success, message, extra) {
+      const slot = document.getElementById("feedback-slot");
+      if (!slot) return;
+      slot.innerHTML = success
+        ? `<div class="feedback good"><span class="success-icon">⭐</span><br>${message}</div>`
+        : `<div class="feedback bad">${message}${extra ? `<small>${extra}</small>` : ""}</div>`;
+    }
+
+    function renderSummary() {
+      const percentage = Math.round(score / 10 * 100);
+      let finalMessage;
+      if (score >= 8) {
+        finalMessage = "¡Enhorabuena! Dominas la interpretación de los números enteros en situaciones cotidianas.";
+      } else if (score >= 5) {
+        finalMessage = "¡Buen trabajo! Sigue practicando para convertirte en un experto en números enteros.";
+      } else {
+        finalMessage = "No te preocupes. Repasa cuándo una situación está por encima de cero, por debajo de cero o representa el cero, y vuelve a intentarlo.";
+      }
+
+      const rows = results.map((result, index) => `
+        <tr>
+          <td><div class="row-situation"><span class="row-emoji">${result.icon}</span><span>${index + 1}. ${result.text}</span></div></td>
+          <td><span class="${result.isCorrect ? "answer-ok" : "answer-no"}">${result.given}</span>
+            <span class="result-label ${result.isCorrect ? "ok" : ""}">${result.isCorrect ? "✓ Correcta" : "✗ Incorrecta"}</span>
+          </td>
+          <td><span class="correct-answer">${result.correct}</span></td>
+        </tr>
+      `).join("");
+
+      content.innerHTML = `
+        <div class="summary">
+          <div class="complete">🏁 MISIÓN COMPLETADA</div>
+          <h2 style="color:#12345b;margin:10px 0 0;font-size:27px">¡Has terminado la partida!</h2>
+          <div class="score"><strong>${score}/10</strong><span>${percentage}% DE ACIERTOS</span></div>
+          <p style="font-weight:900;color:#244d74;margin:8px 0 0">${score} respuestas correctas de 10</p>
+          <p class="final-msg">${finalMessage}</p>
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th style="width:58%">Situación presentada</th><th>Tu respuesta</th><th>Respuesta correcta</th></tr></thead>
+              <tbody>${rows}</tbody>
+            </table>
+          </div>
+          <button type="button" class="play-again" id="play-again">↻ Jugar de nuevo</button>
+          <p class="footnote">🎲 La siguiente partida tendrá 10 situaciones nuevas respecto a la partida que acabas de completar.</p>
+        </div>
+      `;
+
+      document.getElementById("play-again").addEventListener("click", startNewGame);
+    }
+
+    // Impide introducir respuestas con el teclado físico. La actividad se maneja con los botones.
+    // Se bloquean las teclas de caracteres numéricos y signos, pero se mantienen Tab y Enter
+    // para facilitar la navegación accesible entre botones.
+    document.addEventListener("keydown", event => {
+      if (/^[0-9]$/.test(event.key) || event.key === "+" || event.key === "-") {
+        event.preventDefault();
+        event.stopPropagation();
+      }
+    }, true);
+
+    startNewGame();
+  </script>
+</body>
+</html>
